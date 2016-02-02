@@ -24,13 +24,17 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.RowFilter;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -43,6 +47,12 @@ import org.json.simple.JSONObject;
  * @author incode3
  */
 public class MainFrame extends JFrame {
+    //Создаем основное меню
+    private JMenuBar menuBar;
+    //Создаем три подменю
+    private JMenu menuProxy;
+    private JCheckBoxMenuItem cbMenuItem;
+    
     private LessonTableModel lessonTableModel;
     private TableRowSorter<LessonTableModel> sorter;
     private JTable table;
@@ -128,6 +138,23 @@ public class MainFrame extends JFrame {
     }
 
     public MainFrame() {
+        //Create menu
+        this.menuBar = new JMenuBar();
+        this.menuProxy = new JMenu("Proxy");
+        this.menuProxy.addActionListener(myActionListener);
+        this.menuBar.add(menuProxy);
+        this.cbMenuItem = new JCheckBoxMenuItem("Использовать proxy");
+        this.menuProxy.add(this.cbMenuItem);
+        this.menuProxy.add(new JLabel("IP адрес"));
+        this.menuProxy.add(new JTextField());
+        this.menuProxy.add(new JLabel("Номер порта"));
+        this.menuProxy.add(new JTextField());
+        this.menuProxy.add(new JLabel("Логин"));
+        this.menuProxy.add(new JTextField());
+        this.menuProxy.add(new JLabel("Пароль"));
+        this.menuProxy.add(new JTextField());
+        this.setJMenuBar(this.menuBar);
+        
         communicator = new HttpCommunicator();
         myActionListener = new mainFrameActionListener();
         mainPanel = new JPanel(new BorderLayout());

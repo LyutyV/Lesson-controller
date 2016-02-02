@@ -5,6 +5,7 @@
  */
 package LessonSaver;
 
+import MainFrame.SingleDataHolder;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -57,11 +58,11 @@ public class ServerBridge {
         public Frame(String group, Date date, String picType, byte [] picData, byte [] audioData) {
             this.group = group;
             this.date = date;
-            this.sampleRate = 16000;
-            this.sampleSize = 16;
-            this.channels = 1;
-            this.encodedBlockSize = 15;
-            this.decodedBlockSize = 640;
+            this.sampleRate = SingleDataHolder.getInstance().sampleRate;
+            this.sampleSize = SingleDataHolder.getInstance().sampleSize;
+            this.channels = SingleDataHolder.getInstance().channels;
+            this.encodedBlockSize = SingleDataHolder.getInstance().encodedBlockSize;
+            this.decodedBlockSize = SingleDataHolder.getInstance().decodedBlockSize;
             this.picType = picType;
             this.picData = picData;
             this.picSize = picData.length;
@@ -116,9 +117,9 @@ public class ServerBridge {
         
         private String alterSendFrame(Frame f) throws MalformedURLException, IOException, Exception
         {
-            String url = "http://itstepdeskview.hol.es/index.php";
+            //String url = "http://itstepdeskview.hol.es/index.php";
             HttpClient client = HttpClientBuilder.create().build();
-            HttpPost post = new HttpPost(url);
+            HttpPost post = new HttpPost(SingleDataHolder.getInstance().hostAdress + "index.php");
             
             JSONObject headJSON = new JSONObject();
             ByteArrayOutputStream byteHead = new ByteArrayOutputStream();
@@ -165,15 +166,15 @@ public class ServerBridge {
                 DataOutputStream DOS = new DataOutputStream(headBAOS);
                 DOS.write(create30BytesName(f.group).getBytes(Charset.forName("UTF-8")));            //Запись имени группы (30 bytes)
                 DOS.writeLong(new Date().getTime());    //Запись даты в милисекундах
-                DOS.writeInt(16000);         //Запись частоты дискретизации
-                DOS.writeByte(16);        //Запись размера фрагмента
-                DOS.writeByte(1);          //Запись типа моно/стерео
-                DOS.writeInt(15);   //Запись encodedBlockSize
-                DOS.writeInt(640);   //Запись decodedBlockSize
+                DOS.writeInt(f.sampleRate);         //Запись частоты дискретизации
+                DOS.writeByte(f.sampleSize);        //Запись размера фрагмента
+                DOS.writeByte(f.channels);          //Запись типа моно/стерео
+                DOS.writeInt(f.encodedBlockSize);   //Запись encodedBlockSize
+                DOS.writeInt(f.decodedBlockSize);   //Запись decodedBlockSize
                 DOS.close();
                 
                 DOS = new DataOutputStream(bodyBAOS);
-                switch (f.picType)                                                  //Запись типа картинки
+                switch (f.picType)                  //Запись типа картинки
                 {
                     case "boardText":
                         DOS.writeByte(1);

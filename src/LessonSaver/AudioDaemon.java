@@ -5,6 +5,7 @@
  */
 package LessonSaver;
 
+import MainFrame.SingleDataHolder;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.sound.sampled.AudioFormat;
@@ -21,9 +22,9 @@ import org.xiph.speex.SpeexEncoder;
 public class AudioDaemon  extends Thread
 {
     private ConcurrentLinkedQueue audioQueue;
-    private int sample_rate = 16000;
-    private int sample_size = 16;
-    private int channels = 1;
+    private int sample_rate = SingleDataHolder.getInstance().sampleRate;
+    private int sample_size = SingleDataHolder.getInstance().sampleSize;
+    private int channels = SingleDataHolder.getInstance().channels;
     AudioFormat format;
     TargetDataLine audioLine;
     byte[] tmpBuf;

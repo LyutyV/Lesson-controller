@@ -42,8 +42,8 @@ class HttpCommunicator
     private final String USER_AGENT = "Mozilla/5.0";
 
     public void setCombos(JComboBox comboGroups, JComboBox comboDates, LessonTableModel tableModel) throws MalformedURLException, IOException {
-        String url = "http://www.itstepdeskview.hol.es";
-        URL obj = new URL(url);
+        //String url = "http://www.itstepdeskview.hol.es";
+        URL obj = new URL(SingleDataHolder.getInstance().hostAdress);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
         //add reuqest header
@@ -61,7 +61,7 @@ class HttpCommunicator
         wr.close();
 
         int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'POST' request to URL : " + url);
+        System.out.println("\nSending 'POST' request to URL : " + SingleDataHolder.getInstance().hostAdress);
         System.out.println("Post parameters : " + urlParameters);
         System.out.println("Response Code : " + responseCode);
 
@@ -97,9 +97,9 @@ class HttpCommunicator
 
     public boolean removeLessons(JSONObject jsObj) throws MalformedURLException, IOException
     {
-            String url = "http://itstepdeskview.hol.es/index.php";
+            //String url = "http://itstepdeskview.hol.es/index.php";
             HttpClient client = HttpClientBuilder.create().build();
-            HttpPost post = new HttpPost(url);
+            HttpPost post = new HttpPost(SingleDataHolder.getInstance().hostAdress + "index.php");
             
             StringBody head = new StringBody(jsObj.toString(), ContentType.TEXT_PLAIN);
 
@@ -122,9 +122,9 @@ class HttpCommunicator
     
     public boolean setPassword(String password, String group) throws IOException
     {
-        String url = "http://itstepdeskview.hol.es/index.php";
+        //String url = "http://itstepdeskview.hol.es/index.php";
         HttpClient client = HttpClientBuilder.create().build();
-        HttpPost post = new HttpPost(url);
+        HttpPost post = new HttpPost(SingleDataHolder.getInstance().hostAdress + "index.php");
         
         String hashPassword = md5Custom(password);
 
