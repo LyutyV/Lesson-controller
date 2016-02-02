@@ -10,6 +10,7 @@ import java.awt.FlowLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
@@ -32,6 +34,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -52,6 +55,8 @@ public class MainFrame extends JFrame {
     //Создаем три подменю
     private JMenu menuProxy;
     private JCheckBoxMenuItem cbMenuItem;
+    private JTextField proxyIpAdress, proxyPort, proxyLogin;
+    private JPasswordField proxyPassword;
     
     private LessonTableModel lessonTableModel;
     private TableRowSorter<LessonTableModel> sorter;
@@ -141,18 +146,40 @@ public class MainFrame extends JFrame {
         //Create menu
         this.menuBar = new JMenuBar();
         this.menuProxy = new JMenu("Proxy");
-        this.menuProxy.addActionListener(myActionListener);
         this.menuBar.add(menuProxy);
         this.cbMenuItem = new JCheckBoxMenuItem("Использовать proxy");
+        this.cbMenuItem.setMnemonic(KeyEvent.VK_C);
+        
+        ActionListener aListener = new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                AbstractButton aButton = (AbstractButton) event.getSource();
+                boolean selected = aButton.getModel().isSelected();
+                if (selected) {
+                    SingleDataHolder.getInstance().isProxyActivated = true;
+                    SingleDataHolder.getInstance().proxyIpAdress = MainFrame.this.proxyIpAdress.getText();
+                    SingleDataHolder.getInstance().proxyPort = Integer.parseInt(MainFrame.this.proxyPort.getText());
+                    SingleDataHolder.getInstance().proxyLogin = MainFrame.this.proxyLogin.getText();
+                    SingleDataHolder.getInstance().proxyPassword = String.valueOf(MainFrame.this.proxyPassword.getPassword());
+                } else {
+                    SingleDataHolder.getInstance().isProxyActivated = false;
+                }
+            }
+        };
+        this.cbMenuItem.addActionListener(aListener);
+        
+        this.proxyIpAdress = new JTextField();
+        this.proxyPort = new JTextField();
+        this.proxyLogin = new JTextField();;
+        this.proxyPassword = new JPasswordField();
         this.menuProxy.add(this.cbMenuItem);
         this.menuProxy.add(new JLabel("IP адрес"));
-        this.menuProxy.add(new JTextField());
+        this.menuProxy.add(this.proxyIpAdress);
         this.menuProxy.add(new JLabel("Номер порта"));
-        this.menuProxy.add(new JTextField());
+        this.menuProxy.add(this.proxyPort);
         this.menuProxy.add(new JLabel("Логин"));
-        this.menuProxy.add(new JTextField());
+        this.menuProxy.add(this.proxyLogin);
         this.menuProxy.add(new JLabel("Пароль"));
-        this.menuProxy.add(new JTextField());
+        this.menuProxy.add(this.proxyPassword);
         this.setJMenuBar(this.menuBar);
         
         communicator = new HttpCommunicator();

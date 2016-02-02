@@ -42,7 +42,6 @@ class HttpCommunicator
     private final String USER_AGENT = "Mozilla/5.0";
 
     public void setCombos(JComboBox comboGroups, JComboBox comboDates, LessonTableModel tableModel) throws MalformedURLException, IOException {
-        //String url = "http://www.itstepdeskview.hol.es";
         URL obj = new URL(SingleDataHolder.getInstance().hostAdress);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
@@ -97,27 +96,25 @@ class HttpCommunicator
 
     public boolean removeLessons(JSONObject jsObj) throws MalformedURLException, IOException
     {
-            //String url = "http://itstepdeskview.hol.es/index.php";
-            HttpClient client = HttpClientBuilder.create().build();
-            HttpPost post = new HttpPost(SingleDataHolder.getInstance().hostAdress + "index.php");
-            
-            StringBody head = new StringBody(jsObj.toString(), ContentType.TEXT_PLAIN);
+        HttpClient client = HttpClientBuilder.create().build();
+        HttpPost post = new HttpPost(SingleDataHolder.getInstance().hostAdress + "index.php");
 
-            
-            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-            builder.addPart("apiDeskViewer.removeLesson", head);
- 
-            HttpEntity entity = builder.build();
-            post.setEntity(entity);
-            ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            String response = client.execute(post, responseHandler);
-            System.out.println("responseBody : " + response);
-            if (response.equals(new String("\"success\"")))
-                return true;
-            else
-                return false;
+        StringBody head = new StringBody(jsObj.toString(), ContentType.TEXT_PLAIN);
 
+
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+        builder.addPart("apiDeskViewer.removeLesson", head);
+
+        HttpEntity entity = builder.build();
+        post.setEntity(entity);
+        ResponseHandler<String> responseHandler = new BasicResponseHandler();
+        String response = client.execute(post, responseHandler);
+        System.out.println("responseBody : " + response);
+        if (response.equals(new String("\"success\"")))
+            return true;
+        else
+            return false;
     }
     
     public boolean setPassword(String password, String group) throws IOException

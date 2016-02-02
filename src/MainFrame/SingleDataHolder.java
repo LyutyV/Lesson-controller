@@ -18,6 +18,7 @@ public class SingleDataHolder {
     public int encodedBlockSize = 15;
     public int decodedBlockSize = 640;
     public String hostAdress = "http://itstepdeskview.hol.es/";
+    public boolean isProxyActivated = false;
     public String proxyIpAdress = "123.0.0.0";
     public int proxyPort = 12345;
     public String proxyLogin = "testLogin";
