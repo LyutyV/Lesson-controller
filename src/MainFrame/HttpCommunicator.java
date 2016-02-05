@@ -6,13 +6,16 @@
 package MainFrame;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
@@ -21,13 +24,19 @@ import java.util.Date;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.simple.JSONObject;
@@ -42,30 +51,63 @@ class HttpCommunicator
     private final String USER_AGENT = "Mozilla/5.0";
 
     public void setCombos(JComboBox comboGroups, JComboBox comboDates, LessonTableModel tableModel) throws MalformedURLException, IOException {
-        URL obj = new URL(SingleDataHolder.getInstance().hostAdress);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+        BufferedReader in = null;
+        if (SingleDataHolder.getInstance().isProxyActivated) {
+            CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("android", "Android2014"));
+            HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(credentialsProvider).build();
 
-        //add reuqest header
-        con.setRequestMethod("POST");
-        con.setRequestProperty("User-Agent", USER_AGENT);
-        con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+            HttpHost proxy = new HttpHost("10.3.0.3", 3128);
+            RequestConfig config = RequestConfig.custom()
+                    .setProxy(proxy)
+                    .build();
 
-        String urlParameters = "apideskviewer.getAllLessons={}";
+            HttpPost post = new HttpPost(SingleDataHolder.getInstance().hostAdress + "index.php");
+            post.setConfig(config);
 
-        // Send post request
-        con.setDoOutput(true);
-        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-        wr.writeBytes(urlParameters);
-        wr.flush();
-        wr.close();
+            StringBody head = new StringBody(new JSONObject().toString(), ContentType.TEXT_PLAIN);
 
-        int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'POST' request to URL : " + SingleDataHolder.getInstance().hostAdress);
-        System.out.println("Post parameters : " + urlParameters);
-        System.out.println("Response Code : " + responseCode);
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+            builder.addPart("apideskviewer.getAllLessons", head);
 
-        BufferedReader in = new BufferedReader(
+            HttpEntity entity = builder.build();
+            post.setEntity(entity);
+            ResponseHandler<String> responseHandler = new BasicResponseHandler();
+            String response = client.execute(post, responseHandler);
+            System.out.println("responseBody : " + response);
+
+            InputStream stream = new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8));
+
+            in = new BufferedReader(
+                    new InputStreamReader(stream));
+        }
+        else {
+            URL obj = new URL(SingleDataHolder.getInstance().hostAdress);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+            //add reuqest header
+            con.setRequestMethod("POST");
+            con.setRequestProperty("User-Agent", USER_AGENT);
+            con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+
+            String urlParameters = "apideskviewer.getAllLessons={}";
+
+            // Send post request
+            con.setDoOutput(true);
+            DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+            wr.writeBytes(urlParameters);
+            wr.flush();
+            wr.close();
+
+            int responseCode = con.getResponseCode();
+            System.out.println("\nSending 'POST' request to URL : " + SingleDataHolder.getInstance().hostAdress);
+            System.out.println("Post parameters : " + urlParameters);
+            System.out.println("Response Code : " + responseCode);
+
+            in = new BufferedReader(
                 new InputStreamReader(con.getInputStream()));
+        }
 
         JSONParser parser = new JSONParser();
         try {
@@ -96,21 +138,50 @@ class HttpCommunicator
 
     public boolean removeLessons(JSONObject jsObj) throws MalformedURLException, IOException
     {
-        HttpClient client = HttpClientBuilder.create().build();
-        HttpPost post = new HttpPost(SingleDataHolder.getInstance().hostAdress + "index.php");
+        String response = null;
+        if (SingleDataHolder.getInstance().isProxyActivated) {
+            CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("android", "Android2014"));
+            HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(credentialsProvider).build();
 
-        StringBody head = new StringBody(jsObj.toString(), ContentType.TEXT_PLAIN);
+            HttpHost proxy = new HttpHost("10.3.0.3", 3128);
+            RequestConfig config = RequestConfig.custom()
+                    .setProxy(proxy)
+                    .build();
+
+            HttpPost post = new HttpPost(SingleDataHolder.getInstance().hostAdress + "index.php");
+            post.setConfig(config);
+
+            StringBody head = new StringBody(jsObj.toString(), ContentType.TEXT_PLAIN);
+
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+            builder.addPart("apideskviewer.getAllLessons", head);
+
+            HttpEntity entity = builder.build();
+            post.setEntity(entity);
+            ResponseHandler<String> responseHandler = new BasicResponseHandler();
+            response = client.execute(post, responseHandler);
+            System.out.println("responseBody : " + response);            
+        }
+        else {
+            HttpClient client = HttpClientBuilder.create().build();
+            HttpPost post = new HttpPost(SingleDataHolder.getInstance().hostAdress + "index.php");
+
+            StringBody head = new StringBody(jsObj.toString(), ContentType.TEXT_PLAIN);
 
 
-        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-        builder.addPart("apiDeskViewer.removeLesson", head);
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+            builder.addPart("apiDeskViewer.removeLesson", head);
 
-        HttpEntity entity = builder.build();
-        post.setEntity(entity);
-        ResponseHandler<String> responseHandler = new BasicResponseHandler();
-        String response = client.execute(post, responseHandler);
-        System.out.println("responseBody : " + response);
+            HttpEntity entity = builder.build();
+            post.setEntity(entity);
+            ResponseHandler<String> responseHandler = new BasicResponseHandler();
+            response = client.execute(post, responseHandler);
+            System.out.println("responseBody : " + response);
+        }
+
         if (response.equals(new String("\"success\"")))
             return true;
         else
@@ -119,28 +190,54 @@ class HttpCommunicator
     
     public boolean setPassword(String password, String group) throws IOException
     {
-        //String url = "http://itstepdeskview.hol.es/index.php";
-        HttpClient client = HttpClientBuilder.create().build();
-        HttpPost post = new HttpPost(SingleDataHolder.getInstance().hostAdress + "index.php");
-        
+        String response = null;
         String hashPassword = md5Custom(password);
-
         JSONObject jsObj = new JSONObject();
         jsObj.put("group", group);
         jsObj.put("newHash", hashPassword);
 
-        StringBody head = new StringBody(jsObj.toString(), ContentType.TEXT_PLAIN);
+        if (SingleDataHolder.getInstance().isProxyActivated) {
+            CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("android", "Android2014"));
+            HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(credentialsProvider).build();
 
+            HttpHost proxy = new HttpHost("10.3.0.3", 3128);
+            RequestConfig config = RequestConfig.custom()
+                    .setProxy(proxy)
+                    .build();
 
-        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-        builder.addPart("apiDeskViewer.updateGroupAccess", head);
+            HttpPost post = new HttpPost(SingleDataHolder.getInstance().hostAdress + "index.php");
+            post.setConfig(config);
 
-        HttpEntity entity = builder.build();
-        post.setEntity(entity);
-        ResponseHandler<String> responseHandler = new BasicResponseHandler();
-        String response = client.execute(post, responseHandler);
-        System.out.println("responseBody : " + response);
+            StringBody head = new StringBody(jsObj.toString(), ContentType.TEXT_PLAIN);
+
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+            builder.addPart("apideskviewer.getAllLessons", head);
+
+            HttpEntity entity = builder.build();
+            post.setEntity(entity);
+            ResponseHandler<String> responseHandler = new BasicResponseHandler();
+            response = client.execute(post, responseHandler);
+            System.out.println("responseBody : " + response);            
+        }
+        else {
+            HttpClient client = HttpClientBuilder.create().build();
+            HttpPost post = new HttpPost(SingleDataHolder.getInstance().hostAdress + "index.php");
+
+            StringBody head = new StringBody(jsObj.toString(), ContentType.TEXT_PLAIN);
+
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+            builder.addPart("apiDeskViewer.updateGroupAccess", head);
+
+            HttpEntity entity = builder.build();
+            post.setEntity(entity);
+            ResponseHandler<String> responseHandler = new BasicResponseHandler();
+            response = client.execute(post, responseHandler);
+            System.out.println("responseBody : " + response);            
+        }
+
         if (response.equals(new String("\"success\"")))
             return true;
         else

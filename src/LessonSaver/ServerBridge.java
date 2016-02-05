@@ -21,13 +21,19 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.simple.JSONObject;
@@ -117,33 +123,51 @@ public class ServerBridge {
         
         private String alterSendFrame(Frame f) throws MalformedURLException, IOException, Exception
         {
-            //String url = "http://itstepdeskview.hol.es/index.php";
-            HttpClient client = HttpClientBuilder.create().build();
-            HttpPost post = new HttpPost(SingleDataHolder.getInstance().hostAdress + "index.php");
-            
             JSONObject headJSON = new JSONObject();
             ByteArrayOutputStream byteHead = new ByteArrayOutputStream();
             ByteArrayOutputStream byteBody = new ByteArrayOutputStream();
             alterFrameToBytes(f, headJSON, byteHead, byteBody);
-            
+
             StringBody head = new StringBody(headJSON.toString(), ContentType.TEXT_PLAIN);
             // byteHead;
             byte [] byteArrHead = byteHead.toByteArray();
             // bytebody;
             byte [] byteArrBody = byteBody.toByteArray();
-            
-            
+
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
             builder.addPart("apiDeskViewer.setFrame", head);
             builder.addBinaryBody("byteHead", byteArrHead, ContentType.DEFAULT_BINARY, "byteHead.bin");
             builder.addBinaryBody("byteBody", byteArrBody, ContentType.DEFAULT_BINARY, "byteBody.bin");
- 
+            
+            HttpPost post = new HttpPost(SingleDataHolder.getInstance().hostAdress + "index.php");
             HttpEntity entity = builder.build();
-            post.setEntity(entity);
-            ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            String response = client.execute(post, responseHandler);
-            System.out.println("responseBody : " + response);
+            
+            String response = null;
+            if (SingleDataHolder.getInstance().isProxyActivated) {
+                CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+                credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("android", "Android2014"));
+                HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(credentialsProvider).build();
+
+                HttpHost proxy = new HttpHost("10.3.0.3", 3128);
+                RequestConfig config = RequestConfig.custom()
+                        .setProxy(proxy)
+                        .build();
+
+                post.setConfig(config);
+                post.setEntity(entity);
+                ResponseHandler<String> responseHandler = new BasicResponseHandler();
+                response = client.execute(post, responseHandler);
+            }
+            else {
+                HttpClient client = HttpClientBuilder.create().build();
+
+                post.setEntity(entity);
+                ResponseHandler<String> responseHandler = new BasicResponseHandler();
+                response = client.execute(post, responseHandler);
+                System.out.println("responseBody : " + response);
+            }
+                
             return response;
         }
         
