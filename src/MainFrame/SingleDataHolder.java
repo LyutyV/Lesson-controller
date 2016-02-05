@@ -5,6 +5,8 @@
  */
 package MainFrame;
 
+import LessonSaver.SettingsConfig;
+
 /**
  *
  * @author Slava
@@ -18,11 +20,11 @@ public class SingleDataHolder {
     public int encodedBlockSize = 15;
     public int decodedBlockSize = 640;
     public String hostAdress = "http://itstepdeskview.hol.es/";
-    public boolean isProxyActivated = false;
-    public String proxyIpAdress = "123.0.0.0";
-    public int proxyPort = 12345;
-    public String proxyLogin = "testLogin";
-    public String proxyPassword = "testPassword";
+    public boolean isProxyActivated;
+    public String proxyIpAdress;
+    public int proxyPort;
+    public String proxyLogin;
+    public String proxyPassword;
     
     private SingleDataHolder() {
     }
@@ -36,5 +38,14 @@ public class SingleDataHolder {
             }
         }
         return instance;
+    }
+    
+    public void setSettings(SettingsConfig sConfig)
+    {
+        this.isProxyActivated = sConfig.IS_PROXY_ACTIVATE;
+        this.proxyIpAdress = sConfig.PROXY_IP;
+        this.proxyPort = sConfig.PROXY_PORT;
+        this.proxyLogin = sConfig.PROXY_USERNAME;
+        this.proxyPassword = sConfig.PROXY_PASSWORD;
     }
 }

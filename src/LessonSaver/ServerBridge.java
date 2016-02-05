@@ -146,10 +146,16 @@ public class ServerBridge {
             String response = null;
             if (SingleDataHolder.getInstance().isProxyActivated) {
                 CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-                credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("android", "Android2014"));
+                credentialsProvider.setCredentials(
+                        AuthScope.ANY,
+                        new UsernamePasswordCredentials(
+                                SingleDataHolder.getInstance().proxyLogin,
+                                SingleDataHolder.getInstance().proxyPassword));
                 HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(credentialsProvider).build();
 
-                HttpHost proxy = new HttpHost("10.3.0.3", 3128);
+                HttpHost proxy = new HttpHost(
+                        SingleDataHolder.getInstance().proxyIpAdress,
+                        SingleDataHolder.getInstance().proxyPort);
                 RequestConfig config = RequestConfig.custom()
                         .setProxy(proxy)
                         .build();

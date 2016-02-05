@@ -5,8 +5,10 @@
  */
 package lessoncontroller;
 
+import LessonSaver.SettingsConfig;
 import LessonSaver.UdpReceiver;
 import MainFrame.MainFrame;
+import MainFrame.SingleDataHolder;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.InetAddress;
@@ -20,11 +22,19 @@ import javax.swing.JOptionPane;
 public class LessonController {
     private static MainFrame frame;
     private static UdpReceiver receiver;
+    private static SettingsConfig sConfig;
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         checkIfRunning();
+        sConfig = new SettingsConfig();
+        if(!sConfig.isValid)
+        {
+            JOptionPane.showMessageDialog(null, "Ошибка при загрузке файла конфигурации (Settings.xml)");
+            System.exit(0);        
+        }
+        SingleDataHolder.getInstance().setSettings(sConfig);
         
         Thread mainFrameThread = new Thread(new Runnable()
         {

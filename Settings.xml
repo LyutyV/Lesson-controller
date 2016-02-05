@@ -1,48 +1,23 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><application>
-<Configuration>
-    <!-- IP адресс компьтера студента  -->
-        <IP>127.0.0.1</IP>
-
-    <!-- Broad Cast IP UDP  -->
-        <IP_UDP>255.255.255.255</IP_UDP>
-
-    <!--  UDP порт для маяка-->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<application>
+    <Configuration>
+        <!--  UDP порт для маяка-->
         <PORT_UDP>9600</PORT_UDP>
-        
-    <!--UDP порт приема данных доски  + 1 -->
-    <!--PORT_UDP_BOARD>9801</PORT_UDP_BOARD-->
-        
-    <!--TCP порт отправки экрана студета +2 -->
-    <!--PORT_TCP_IMG>9802</PORT_TCP_IMG-->
-        
-    <!--TCP порт получения команд  +3 -->		
-    <!--PORT_TCP_COMMAND>9803</PORT_TCP_COMMAND-->
-		
-	<!--port UDP for get ScreenStream +4 -->		
-	<!--PORT_TCP_ScStr>9804</PORT_TCP_ScStr-->
-        
-</Configuration>
-    <!--Фамилия Имя студента-->
-        <Name> Student</Name>
-      <!--Расположение и размеры доски-->  
-        <BoundsBoard>
-            <X>883</X>
-            <Y>36</Y>
-            <Width>856</Width>
-            <Height>658</Height>
-	    	<Scale>1.0</Scale>
-        </BoundsBoard>
 
-	<!-- Size PreviewPane -->
-	<WidthPreview>240</WidthPreview>  
-      
-	<Colors>
-		<!--Цвет фона-->
-		<Background>CCFFFF</Background>
-        <!--Цвет текста-->
-		<Foreground>000099</Foreground>
-	</Colors>
-        
-        
-        
+        <!-- Использовать Proxy сервер (true/false) -->
+        <PROXY_ACTIVATE>false</PROXY_ACTIVATE>
+
+        <!-- IP адресс Proxy сервера -->
+        <PROXY_IP>10.3.0.3</PROXY_IP>
+
+        <!-- Номер порта Proxy сервера -->
+        <PROXY_PORT>3128</PROXY_PORT>
+
+        <!-- Логин Proxy сервера -->
+        <PROXY_USERNAME>android</PROXY_USERNAME>
+
+        <!-- Пароль Proxy сервера -->
+        <PROXY_PASSWORD>Android2014</PROXY_PASSWORD>
+
+    </Configuration>
 </application>

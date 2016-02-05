@@ -118,10 +118,6 @@ public class UdpReceiver implements Runnable {
                         picData = new byte[0];
                     }
 
-//                    System.out.println("Group = " + groupName.getValue() +
-//                            " type = " + picType +
-//                            " pic = " + picData.length +
-//                            " audio = " + audioData.length);
                     this.bridge.setFrame(groupName.getValue(), new Date(), picType, picData, audioData);
 
                     Thread.sleep(0);

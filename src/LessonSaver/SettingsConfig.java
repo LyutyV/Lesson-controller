@@ -10,7 +10,6 @@ package LessonSaver;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,40 +29,18 @@ public class SettingsConfig
 {
     public boolean isValid;
 
-    //<editor-fold defaultstate="collapsed" desc=" IP, ports ">
-  
-    /**
-     * порт прослушки маяков студентов
-     */
-    private int  PORT_UDP; 
-    /**
-     * порт вещания доски
-     */
-    public int  PORT_UDP_BOARD;
-    /**
-     * порт TCP соединения для получения картинки
-     */
-    private int  PORT_TCP_IMG;
-    /**
-     * порт TCP соединения для отправки команды
-     */
-    private int  PORT_TCP_COMMAND;
-    /**
-     * порт для отправки экрана преподавателя по UDP
-     */
-    public int  PORT_UDP_ScStr;
-    //</editor-fold>    
-    InputStream IS;
+    private int PORT_UDP; 
+    public int PORT_UDP_BOARD;
+    public int PORT_UDP_ScStr;
+    public boolean IS_PROXY_ACTIVATE;
+    public String PROXY_IP;
+    public int PROXY_PORT;
+    public String PROXY_USERNAME;
+    public String PROXY_PASSWORD;
+
     /**
      * адресс компьютера
      */
-    public InetAddress IP;
-    /**
-     * broadcast UDP
-     */
-    public InetAddress IP_UDP;  
-  
-    
     Document doc;
     
     public  SettingsConfig()
@@ -71,10 +48,6 @@ public class SettingsConfig
         isValid=isLoadStyle();
     }
     
-    /**
-     * считывание данных из файла
-     * @return 
-     */
     private boolean isLoadStyle()
     { 
         try
@@ -82,21 +55,28 @@ public class SettingsConfig
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             this.doc = builder.parse(new File("Settings.xml"));
-            
-            Element ip = (Element)doc.getElementsByTagName("IP").item(0); 
-            this.IP=InetAddress.getByName(ip.getTextContent().trim());
-            
-            Element ip_udp = (Element)doc.getElementsByTagName("IP_UDP").item(0); 
-            this.IP_UDP=InetAddress.getByName(ip_udp.getTextContent().trim());
-            
-            Element p_udp = (Element)doc.getElementsByTagName("PORT_UDP").item(0); 
+                        
+            Element p_udp = (Element)doc.getElementsByTagName("PORT_UDP").item(0);
             this.PORT_UDP=Integer.parseInt(p_udp.getTextContent());
             
             this.PORT_UDP_BOARD=this.PORT_UDP+1;            
-            this.PORT_TCP_IMG=this.PORT_UDP+2;
-            this.PORT_TCP_COMMAND=this.PORT_UDP+3;
             this.PORT_UDP_ScStr=this.PORT_UDP+4;
-           
+            
+            Element element_proxy_activate = (Element)doc.getElementsByTagName("PROXY_ACTIVATE").item(0);
+            this.IS_PROXY_ACTIVATE = Boolean.parseBoolean(element_proxy_activate.getTextContent());
+            
+            Element element_proxy_ip = (Element)doc.getElementsByTagName("PROXY_IP").item(0);
+            this.PROXY_IP = element_proxy_ip.getTextContent();
+
+            Element element_proxy_port = (Element)doc.getElementsByTagName("PROXY_PORT").item(0);
+            this.PROXY_PORT = Integer.parseInt(element_proxy_port.getTextContent());
+
+            Element element_proxy_username = (Element)doc.getElementsByTagName("PROXY_USERNAME").item(0);
+            this.PROXY_USERNAME = element_proxy_username.getTextContent();
+
+            Element element_proxy_passwotd = (Element)doc.getElementsByTagName("PROXY_PASSWORD").item(0);
+            this.PROXY_PASSWORD = element_proxy_passwotd.getTextContent();
+            
             return true;
         }
         catch (ParserConfigurationException ex)
